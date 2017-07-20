@@ -1,4 +1,7 @@
-"""OpenStax Python helper for common actions."""
+"""
+OpenStax Python helper for common actions.
+Couple of new functions such as open_help_menu and random_function
+"""
 
 import calendar
 import datetime
