@@ -5,8 +5,8 @@ import inspect
 import json
 import os
 import pytest
-import unittest
 import random
+import unittest
 
 from pastasauce import PastaSauce, PastaDecorator
 from random import randint
@@ -81,12 +81,15 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132519) not in TESTS, reason='Excluded')
     def test_teacher_create_and_publish_a_new_open_reading_132519(self):
         """
+        Create and publish a new open reading for all periods
+
         Steps:
         Click on the 'Add Assignment' button
         Click on the 'Add Reading' option
         (The teacher is taken to the Add Reading Assignment page)
-        Enter an assignment name into the Assignment name text box [user decision]
-        Enter an assignment description into the Assignment description or special instructions text box
+        Enter an assignment name into the Assignment name text box
+        Enter an assignment description into the Assignment description
+          or special instructions text box
         ['All Sections' should be selected by default]
         Click on the Open Date text field and click on today's date on calendar pop-up
         Click on the Open Time text field and enter 12:01am.
@@ -101,9 +104,9 @@ class TestCreateAReading(unittest.TestCase):
         Takes user back to calendar dashboard.
         An opened assignment appears on user calendar dashboard on due date with correct readings
         """
-        self.ps.test_updates['name'] = 't1.14.001' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
             + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.001', '7992']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132519']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -127,6 +130,7 @@ class TestCreateAReading(unittest.TestCase):
         self.teacher.find(
             By.XPATH, '//textarea[contains(@class, "form-control")]'
         ).send_keys('description')
+        # use staxing function to send_keys
 
         # Set date
         today = datetime.date.today()
@@ -178,6 +182,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132520) not in TESTS, reason='Excluded')
     def test_teacher_save_a_draft_reading_for_individual_sections_132520(self):
         """
+        Save a draft for individual periods
+
         Steps:
         Click on the Add Assignment sidebar menu on the user dashboard if it is not already open
         Click on the 'Add Reading' button
@@ -200,9 +206,9 @@ class TestCreateAReading(unittest.TestCase):
         Assignment appears on user calendar dashboard on due date with correct readings.
         'draft' should appear before the assignment name.
         """
-        # self.ps.test_updates['name'] = 't1.14.004' \
-        #                                + inspect.currentframe().f_code.co_name[4:]
-        # self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.004', '7995']
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
+                                       + inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132520']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -287,6 +293,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132521) not in TESTS, reason='Excluded')
     def test_teacher_create_and_publish_new_unopened_reading_from_calendar_132521(self):
         """
+        Create and publish a new unopened reading from calendar
+
         Steps:
         Click on calendar date for desired due date
         Click on the 'Add Reading' option
@@ -304,9 +312,9 @@ class TestCreateAReading(unittest.TestCase):
         Takes user back to calendar dashboard.
         An unopened assignment appears on user calendar dashboard on due date with correct readings
         """
-        # self.ps.test_'name'] = 't1.14.004' \
-        #                                + inspect.currentframe().f_code.co_name[4:]
-        # self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.004', '7995']
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
+            + inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132521']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -344,16 +352,19 @@ class TestCreateAReading(unittest.TestCase):
         # Fill in description
         self.teacher.find(
             By.XPATH,
-            '//div[contains(@class,"assignment-description")]//textarea' +
-            '[contains(@class,"form-control")]'
+            '//div[contains(@class,"assignment-description")]' +
+            '//textarea[contains(@class,"form-control")]'
         ).send_keys('description')
+        # or change it to span .assignment-description > .form-control
 
         # Set date
         today = datetime.date.today()
         start = randint(1, 5)
         end = start + randint(1, 5)
+
+        # the open date should be in the future for the assignment to be unopened
         opens_on = (today + datetime.timedelta(days=start))\
-            .strftime('%m/%d/%Y')   # the open date should be later than today for the assignment to be unopened
+            .strftime('%m/%d/%Y')
         closes_on = (today + datetime.timedelta(days=end))\
             .strftime('%m/%d/%Y')
         assignment.assign_periods(
@@ -398,7 +409,7 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132522) not in TESTS, reason= 'Excluded')
     def test_teacher_publish_a_draft_reading_132522(self):
         """
-        Publish a draft reading.
+        Publish a draft reading
 
         Steps:
         On the calendar click on a reading assignment that is currently a draft
@@ -409,9 +420,9 @@ class TestCreateAReading(unittest.TestCase):
         Assignment appears on user calendar dashboard on due date with correct
         readings. 'draft' should no longer be before the assignment name.
         """
-        self.ps.test_updates['name'] = 't1.14.007' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.007', '7998']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132522']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -472,6 +483,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132523) not in TESTS, reason= "Excluded")
     def test_teacher_cancel_a_new_reading_before_making_any_changes_132523(self):
         """
+        Cancel a new reading before making any changes
+
         Steps:
         Click on the 'Add Assignment' sidebar menu
         Click on the 'Add Reading' option
@@ -486,9 +499,9 @@ class TestCreateAReading(unittest.TestCase):
         Takes user back to calendar dashboard.
         No changes have been made to the calendar on the dashboard
         """
-        self.ps.test_updates['name'] = 't1.14.008' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.008', '7999']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132523']
         self.ps.test_updates['passed'] = False
 
         # Open "Add Reading" page
@@ -528,6 +541,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132560) not in TESTS, reason= "Excluded")
     def test_teacher_cancel_a_new_reading_after_making_changes_132560(self):
         """
+        Cancel a new reading after making changes
+
         Steps:
         Click on the 'Add Assignment' drop down menu
         Click on the 'Add Reading' option
@@ -546,9 +561,9 @@ class TestCreateAReading(unittest.TestCase):
         Takes user back to calendar dashboard.
         No changes have been made to the calendar on the dashboard
         """
-        self.ps.test_updates['name'] = 't1.14.009' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.009', '8000']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132560']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -618,22 +633,26 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132524) not in TESTS, reason= "Excluded")
     def test_teacher_cancel_a_draft_reading_before_making_changes_132524(self):
         """
+        Cancel a draft reading before making changes
+
         Steps:
         On the calendar click on a assignment that is currently a draft
         Click on the 'Cancel' button
-        ***Takes user back to calendar dashboard. no changes have been made to the chosen draft on the calendar dashboard*** (T1.14.012)
+        Takes user back to calendar dashboard. no changes have been
+        made to the chosen draft on the calendar dashboard***
 
         On the calendar click on a assignment that is currently a draft
         Click on the 'X' button
-        ***Takes user back to calendar dashboard. No changes have been made to the chosen draft on the calendar dashboard*** (T1.14.014)
+        ***Takes user back to calendar dashboard. No changes have been
+        made to the chosen draft on the calendar dashboard***
 
         Expected result:
-        ***Takes user back to calendar dashboard.
-        No changes have been made to the chosen draft on the calendar dashboard***
+        Takes user back to calendar dashboard.
+        No changes have been made to the chosen draft on the calendar dashboard
         """
-        self.ps.test_updates['name'] = 't1.14.012' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.012', '8003']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132524']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification
@@ -758,6 +777,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132561) not in TESTS, reason="Excluded")
     def test_teacher_cancel_a_draft_reading_after_making_changes_132561(self):
         """
+        Cancel a draft reading after making changes
+
         Steps:
         On the calendar click on a assignment that is currently a draft
         Enter an assignment name into the Assignment name text box [user decision]
@@ -774,10 +795,9 @@ class TestCreateAReading(unittest.TestCase):
         Takes user back to calendar dashboard.
         No changes have been made to the chosen draft on the calendar dashboard
         """
-        self.ps.test_updates['name'] = 't1.14.012' \
-                                       + inspect.currentframe().f_code.co_name[
-                                         4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.012', '8003']
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
+                                       + inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132561']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification
@@ -927,6 +947,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132525) not in TESTS, reason= "Excluded")
     def test_teacher_attempt_to_save_or_publish_a_reading_with_blank_required_fields_132525(self):
         """
+        Attempt to save/publish a reading with blank required fields
+
         Steps:
         Click on the 'Add Assignment' drop down menu
         Click on the 'Add Reading' option
@@ -942,9 +964,9 @@ class TestCreateAReading(unittest.TestCase):
         Remains on the Add Assignment page. Does not allow user to publish assignments.
         All required fields that were left blank become red, and specify that they are required fields.***
         """
-        self.ps.test_updates['name'] = 't1.14.016' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.016', '8007']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132525']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -990,22 +1012,25 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132528) not in TESTS, reason= "Excluded")
     def test_teacher_delete_a_draft_reading_132528(self):
         """
+        Delete a draft reading
+
+        Steps:
         On the calendar click on a draft
         Click on the 'Delete Assignment' button
         Click on the "Yes" button
-        ***Takes user back to calendar dashboard. Chosen assignment no longer appears on teacher calendar dashboard***
+        [Takes user back to calendar dashboard. Chosen assignment no longer appears on teacher calendar dashboard]
 
         On the calendar click on a reading that is unopened
         Click on the 'Edit Assignment' button
         Click on the 'Delete Assignment' button
         Click on the "Yes" button
 
-        #Expected result
-        ***Takes user back to calendar dashboard. Chosen assignment no longer appears on teacher calendar dashboard***
+        Expected result:
+        Takes user back to calendar dashboard. Chosen assignment no longer appears on teacher calendar dashboard***
         """
-        self.ps.test_updates['name'] = 't1.14.018' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.018', '8009']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132528']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1069,6 +1094,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132527) not in TESTS, reason="Excluded")
     def test_teacher_delete_an_unopened_reading_132527(self):
         """
+        Delete an unopened reading
+
         Steps:
         On the calendar click on an unopened reading
         Click on the 'Edit Assignment' button
@@ -1078,9 +1105,9 @@ class TestCreateAReading(unittest.TestCase):
         Expected result:
         An open reading is deleted
         """
-        self.ps.test_updates['name'] = 't1.14.018' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.018', '8009']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132527']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1166,6 +1193,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132526) not in TESTS, reason="Excluded")
     def test_teacher_delete_an_open_reading_132526(self):
         """
+        Delete an open reading
+
         Steps:
         On the calendar click on a reading that is opened
         Click on the 'Edit Assignment' button
@@ -1176,9 +1205,9 @@ class TestCreateAReading(unittest.TestCase):
         An open reading is deleted
         """
         # Create an open reading
-        self.ps.test_updates['name'] = 't1.14.018' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.018', '8009']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132526']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1275,9 +1304,9 @@ class TestCreateAReading(unittest.TestCase):
         have been updated.
         The draft reading now appears on its new due date on the calendar.
         """
-        self.ps.test_updates['name'] = 't1.14.034' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.034', '8025']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132530']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1405,9 +1434,9 @@ class TestCreateAReading(unittest.TestCase):
         have been updated.
         The reading appears on its new due date on the calendar.
         """
-        self.ps.test_updates['name'] = 't1.14.034' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.034', '8025']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132531']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1537,9 +1566,9 @@ class TestCreateAReading(unittest.TestCase):
         have been updated.
         The reading now appears on its new due date on the calendar
         """
-        self.ps.test_updates['name'] = 't1.14.034' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.034', '8025']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132529']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1649,6 +1678,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132532) not in TESTS, reason="Excluded")
     def test_teacher_rearrange_reading_sections_132532(self):
         """
+        Add/Remove/Reorder reading sections and chapters
+
         Steps:
         Click on the 'Add Assignment' button
         Click on the 'Add Reading' option
@@ -1686,9 +1717,9 @@ class TestCreateAReading(unittest.TestCase):
         Expected result:
         Section is reordered, and moved accordingly under Currently Selected list
         """
-        self.ps.test_updates['name'] = 't1.14.027' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.027', '8018']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132532']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -1864,7 +1895,7 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132533) not in TESTS, reason="Excluded")
     def test_teacher_add_a_reading_by_dragging_and_dropping_132533(self):
         """
-        Add reading by dragging Add Reading to calendar date.
+        Add reading by dragging 'Add Reading' to calendar date.
 
         Steps:
         Click on the Add Assignment Menu
@@ -1873,9 +1904,9 @@ class TestCreateAReading(unittest.TestCase):
         Expected Result:
         User taken to Add Reading page with due date filled in
         """
-        self.ps.test_updates['name'] = 't1.14.037' \
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
                                        + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.037', '111246']
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132533']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification
@@ -1930,6 +1961,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132534) not in TESTS, reason="Excluded")
     def test_teacher_reading_info_icon_and_training_wheel_132534(self):
         """
+        Test info icon and training wheel
+
         Steps:
         Click on the 'Add Assignment' sidebar menu
         Click on the "Add Reading" option
@@ -1954,10 +1987,9 @@ class TestCreateAReading(unittest.TestCase):
         Expected result:
         A Youtube video window pops up, showing the student view of your assignment
         """
-        self.ps.test_updates['name'] = 't1.14.001' \
-                                       + inspect.currentframe().f_code.co_name[
-                                         4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.001', '7992']
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
+                                       + inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132534']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
@@ -2033,6 +2065,8 @@ class TestCreateAReading(unittest.TestCase):
     @pytest.mark.skipif(str(132577) not in TESTS, reason="Excluded")
     def test_teacher_get_assignment_link_and_review_metrics(self):
         """
+        Get assignment link and review metrics
+
         Steps:
         Click on an existing reading on the calendar
         Click "Get assignment link"
@@ -2046,10 +2080,9 @@ class TestCreateAReading(unittest.TestCase):
         Expected result:
         The teacher is taken to the reading summary page
         """
-        self.ps.test_updates['name'] = 't1.14.018' \
-                                       + inspect.currentframe().f_code.co_name[
-                                         4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.14', 't1.14.018', '8009']
+        self.ps.test_updates['name'] = 'tutor_teacher_reading' \
+                                       + inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['tutor', 'teacher', 'reading', '132577']
         self.ps.test_updates['passed'] = False
 
         # Test steps and verification assertions
