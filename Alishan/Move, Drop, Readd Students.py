@@ -1,4 +1,4 @@
-"""Tutor v1, Epic 42 - Edit Course Settings and Roster."""
+"""Tutor, Course Settings and Roster - Move, Drop and Readd Students."""
 
 import inspect
 import json
@@ -9,8 +9,8 @@ import unittest
 from pastasauce import PastaSauce, PastaDecorator
 from random import randint
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expect
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as expect
 
 # select user types: Admin, ContentQA, Teacher, and/or Student
 from staxing.helper import Teacher, Admin
@@ -26,7 +26,7 @@ LOCAL_RUN = os.getenv('LOCALRUN', 'false').lower() == 'true'
 TESTS = os.getenv(
     'CASELIST',
     str([
-        8265
+        162189
     ])
 )
 
@@ -64,14 +64,13 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         except:
             pass
 
-
-
-    # Case C8265 - 008 - Teacher | Move a student to another period
-    @pytest.mark.skipif(str(8265) not in TESTS, reason='Excluded')
-    def test_teacher_mover_a_student_to_another_period_8265(self):
+    # Case 162189 - 002 - Teacher | Move, Drop, and Readd a Student
+    @pytest.mark.skipif(str(162189) not in TESTS, reason='Excluded')
+    def test_teacher_mover_a_student_to_another_period_162189(self):
         """
+
         #STEPS
-        Go to https://tutor-qa.openstax.org/
+        Go to Tutor
         Click on the 'Login' button
         Enter the teacher username [ ] in the username text box
         Click 'Next'
@@ -101,7 +100,7 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         # Test steps and verification assertions
         self.ps.test_updates['name'] = 't1.42.008' \
             + inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.42', 't1.42.008', '8265']
+        self.ps.test_updates['tags'] = ['t1', 't1.42', 't1.42.008', '162189']
         self.ps.test_updates['passed'] = False
 
         # Select a course and see the calendar dashboard
@@ -114,8 +113,7 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         ).click()
         self.teacher.page.wait_for_page_load()
 
-
-        # Move Student
+        # Move Students
         self.teacher.find(
             By.XPATH, '//a[@aria-describedby="change-period"]').click()
         student_name = self.teacher.find(
@@ -126,7 +124,7 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         element.click()
         self.teacher.sleep(1)
         self.teacher.find(
-            By.XPATH, '//li/a[contains(text(),"'+period_name+'")]').click()
+            By.XPATH, '//a/h2[contains(text(),"'+period_name+'")]').click()
         self.teacher.driver.find_element(
             By.XPATH, '//td[contains(text(),"%s")]' % student_name)
 
@@ -138,14 +136,13 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         self.teacher.find(
             By.XPATH, '//div[@class="popover-content"]//button').click()
         self.teacher.sleep(1)
-        # check that student was droped
+            # check that student was dropped
         self.teacher.find(
             By.XPATH, '//div[contains(@class,"dropped-students")]' +
             '//td[contains(text(),"%s")]' % student_name
         )
 
         # Readd Student
-
             # add a student back (not necessarily the same student)
         self.teacher.find(
             By.XPATH, '//a[@aria-describedby="drop-student-popover-1216"]').click()
@@ -158,4 +155,3 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
             '//div[@class="roster"]//td[contains(text(),"%s")]' % student_name)
 
         self.ps.test_updates['passed'] = True
-
