@@ -104,7 +104,7 @@ class TestEditCourseSettingsAndRoster(unittest.TestCase):
         self.ps.test_updates['passed'] = False
 
         # Select a course and see the calendar dashboard
-        self.teacher.select_course(title='Soci249', appearance='intro_sociology')
+        self.teacher.select_course(appearance='intro_sociology')
         self.teacher.open_user_menu()
         self.teacher.wait.until(
             expect.element_to_be_clickable(
