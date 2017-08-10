@@ -14,7 +14,7 @@ Open terminal window and navigate to the repo folder
 `LOCALRUN=true TEACHER_USER=example TEACHER_PASSWORD=example SERVER_URL="tutor-qa.openstax.org" python -m pytest -v test_file_name`
 
 ## Clean up assignments 
-If there are too many assignments created on a teacher's calendar and you want to delete some of them, run [test_clean_up_calendar.py](https://) and select the type of assignment you delete.
+If there are too many assignments created on a teacher's calendar and you want to delete some of them, run [test_clean_up_calendar.py](https://github.com/osqa-interns/TestRewrite/blob/master/helper-functions/test_clean_up_calendar.py) and select the type of assignment you delete.
 
 
 
