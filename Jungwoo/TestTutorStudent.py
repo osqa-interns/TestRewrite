@@ -11,16 +11,7 @@ from pastasauce import PastaSauce, PastaDecorator
 from random import randint
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as expect
-# from staxing.assignment import Assignment
-
-########################
-"""from staxing.helper import Teacher"""
-##########################
-from helper import Student
-
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.common.action_chains import ActionChains
-
+from staxing.helper import Student
 
 basic_test_env = json.dumps([
     {
@@ -35,9 +26,7 @@ LOCAL_RUN = os.getenv('LOCALRUN', 'false').lower() == 'true'
 TESTS = os.getenv(
     'CASELIST',
     str([
-        #7978, 7979, 7980, 7981, 7982,
-        #7983, 7984, 7985, 7986, 7987,
-        #7988, 7989, 7990
+        #162248, 162252, 162253
     ])
 )
 
@@ -75,25 +64,29 @@ class TestTutorStudent(unittest.TestCase):
         except:
             pass
 
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_not_in_any_courses_directed_to_no_courses_page_and_tutor_guide(self):
+
+    @pytest.mark.skipif(str(162248) not in TESTS, reason='Excluded')
+    def test_not_in_any_courses_directed_to_no_courses_page_and_tutor_guide_162248(self):
         """
-        Go to tutor-qa.openstax.org
-        Log in as a student with no courses, qa_student_37003 works
+        Go to tutor qa
+        Log in as a student with no courses
         ***Message "We cannot find an OpenStax course associated with your account displays with help links***
 
         Click "Tutor Students. Get help >"
-        ***Tutor Help Center opens in another tab with the Getting Started guide*** click "Add a Course"       
+        ***Tutor Help Center opens in another tab with the Getting Started guide*** click "Add a Course"  
+
+        https://trello.com/c/kc8R2kJO/22-student-not-in-any-courses-directed-to-a-no-courses-page-and-tutor-guide     
         """
         
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'tutor_help_center_student_162248' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['tutor', 'help_center', 'student', '162248']
         self.ps.test_updates['passed'] = False
 
+        # log in as a student with 0 courses
         self.student.login(
-            username='qa_student_37003', 
-            password=os.getenv('CONTENT_PASSWORD')
+            username=os.getenv('STUDENT_USER_DEMO'), 
+            password=os.getenv('STUDENT_DEMO_PASSWORD')
         )
         self.student.page.wait_for_page_load()
         self.student.wait.until(
@@ -103,14 +96,16 @@ class TestTutorStudent(unittest.TestCase):
                 ))
         )
         self.student.find(By.XPATH, ".//*[contains(text(),'Tutor Students')]").click()
+        # go to new tab that opens and check that it is the support page
         window_with_help = self.student.driver.window_handles[1]
         self.student.driver.switch_to_window(window_with_help)
+        self.student.find(By.XPATH, './/*[contains(text(),"Support")]')
         
         self.ps.test_updates['passed'] = True
 
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    ############################NOT DONE#############################
-    def test_student_questions_why_info_icon_reporting_errata(self):
+    # NOT DONE
+    @pytest.mark.skipif(str(162252) not in TESTS, reason='Excluded')
+    def test_student_questions_why_info_icon_reporting_errata_162252(self):
         """
         Prerequisite: Student needs a homework/reading assignment
 
@@ -139,70 +134,66 @@ class TestTutorStudent(unittest.TestCase):
 
         """
         
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'tutor_homework_student_162252' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['tutor', 'homework', 'student', '162252']
         self.ps.test_updates['passed'] = False
 
         self.student.login()
-        #pick course. Would want to be random; issue is making sure course has assignments
-        #thus, just chose course 353 for this as it has some assignments. Subject to change
-        #code for random tutor course is as follows:
-        #courses = self.student.find_all(
-            #By.XPATH,".//*[@class='course-branding my-courses-item-brand' and contains(text(),'Tutor')]")
-        #courses[randint(0,len(courses)-1)].click()
-        course = self.student.find(By.CSS_SELECTOR, "a[href*='353']")
-        self.student.scroll_to(course)
-        course.click()
+        self.student.random_course
+        # try clicking on a homework
         try:
             homeworks = self.student.find_all(By.XPATH, 
                 ".//*[@class='-this-week panel panel-default']//*[@class='icon icon-lg icon-homework']")
             homeworks[randint(0,len(homeworks)-1)].click()
             assignment = 'homework'
-            self.student.sleep(5)
+        # try clicking on a reading if a homework isn't available
         except:
             readings = self.student.find_all(By.XPATH,
                 ".//*[@class='-this-week panel panel-default']//*[@class='icon icon-lg icon-reading']")
             readings[randint(0,len(readings)-1)].click()
             assignment = 'reading'
+        
         if assignment == 'homework':
             try:
+                # if a short answer is immediately present
                 self.student.find(By.CSS_SELECTOR,
                     ".openstax-question>textarea").send_keys('testing')
                 self.student.find(By.CSS_SELECTOR,".async-button").click()
                 self.student.page.wait_for_page_load()
+                # check for why icon
                 self.student.find(By.XPATH,
                     ".//*[@class='text-info' and contains(text(),'Why?')]")
                 self.student.find(By.CSS_SELECTOR, "a[href*='errata']").click()
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.driver.switch_to().window(handles[1])
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.browser.driver.close();
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.browser.driver.switch_to().window(handles[0])
-                self.student.sleep(3)
+                self.student.sleep(1)
             except:
+                # if a multiple choice is immediately present
                 self.student.find(By.XPATH,
                     ".//*[@class='text-info' and contains(text(),'Why?')]")
                 self.student.scroll_to(report)
                 report = self.student.find(By.CSS_SELECTOR, "a[href*='errata']")
                 report.click()
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.driver.switch_to.window(handles[1])
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.browser.driver.close();
-                self.student.sleep(3)
+                self.student.sleep(1)
                 self.student.browser.driver.switch_to.window(handles[0])
-                self.student.sleep(3)
+                self.student.sleep(1)
 
-
-
-
-        self.student.sleep(3)
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_student_late_icons(self):
+        #self.ps.test_updates['passed'] = True
+    
+    #NOTE THAT IT WILL ONLY PASS IF THE COURSE HAS LATE ASSIGNMENTS
+    @pytest.mark.skipif(str(162253) not in TESTS, reason='Excluded')
+    def test_student_late_icons_162253(self):
         """
-        Go to tutor-qa.openstax.org
+        Go to tutor qa
         Log in as a student with late assignments(homework, reading, external assignment)
 
         Expected result:
@@ -210,20 +201,24 @@ class TestTutorStudent(unittest.TestCase):
         ***Observe the late icons (this is the red clock) for homework, reading, and external assignment***
 
         Corresponding test cases: T2.10 021,023,025
+        https://trello.com/c/644uscZ2/115-late-icons-for-assignments-working-properly
         """
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'tutor_assignments_student_162253' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['tutor', 'assignments', 'student', '162253']
         self.ps.test_updates['passed'] = False
 
+        # log in as a student
         self.student.login()
+        self.student.random_course()
+        # check for late icon 
         self.student.find(By.CSS_SELECTOR, ".info.late")
 
         self.ps.test_updates['passed'] = True
 
-
-#@pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_reading_assingments_progress_bar_milestones_section_number_header(self):
+    # NOT FINISHED
+    @pytest.mark.skipif(str(162254) not in TESTS, reason='Excluded')
+    def test_reading_assingments_progress_bar_milestones_section_number_header_162254(self):
         """
         Login as student
         Click on a tutor course
@@ -250,21 +245,31 @@ class TestTutorStudent(unittest.TestCase):
 
         Corresponding test cases: T2.13 001, 002, 004, 006
         """
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'tutor_reading_student_162254' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['tutor', 'reading', 'student', '162254']
         self.ps.test_updates['passed'] = False
 
         self.student.login()
         self.student.random_course()
         self.student.browse_book()
         self.student.sleep(3)
+        original_window = self.student.driver.window_handles[0]
         book = self.student.driver.window_handles[1]
         self.student.driver.switch_to_window(book)
+        # click on a random section
         sections = self.student.find_all(By.CSS_SELECTOR,".section")
         num = randint(0,len(sections))
         sections[num].click()
-        self.student.sleep(3) 
+        # find the title
+        self.student.find(By.CSS_SELECTOR, ".title")
+        self.student.driver.switch_to_window(original_window)
+        self.student.find(By.CSS_SELECTOR,".icon.icon-lg.icon-reading").click()
+
+        #self.ps.test_updates['passed'] = True
+
+
+
 
 
 

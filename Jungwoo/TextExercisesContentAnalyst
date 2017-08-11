@@ -1,4 +1,4 @@
-"""Exercises: Teacher"""
+"""Exercises: Content Analyst"""
 
 import datetime
 import inspect
@@ -28,7 +28,7 @@ LOCAL_RUN = os.getenv('LOCALRUN', 'false').lower() == 'true'
 TESTS = os.getenv(
     'CASELIST',
     str([ 
-        162257, 162258, 162259, 162260, 162261
+        162262, 162263, 162264
     ])
 )
 
@@ -42,16 +42,15 @@ class TestExercisesTeacher(unittest.TestCase):
         self.ps = PastaSauce()
         self.desired_capabilities['name'] = self.id()
         if not LOCAL_RUN:
-            self.teacher = Teacher(
+            self.content = ContentQA(
                 use_env_vars=True,
                 pasta_user=self.ps,
                 capabilities=self.desired_capabilities
             )
         else:
-            self.teacher = Teacher(
+            self.content = ContentQA(
                 use_env_vars=True
             )
-        #self.teacher.login(url='http://exercises-qa.openstax.org')
 
     def tearDown(self):
         """Test destructor."""
@@ -61,211 +60,15 @@ class TestExercisesTeacher(unittest.TestCase):
                 **self.ps.test_updates
             )
         try:
-            self.teacher.delete()
+            self.content.delete()
         except:
             pass
-            
-    @pytest.mark.skipif(str(162257) not in TESTS, reason='Excluded')
-    def test_creating_true_and_false_question_162257(self):
+
+   @pytest.mark.skipif(str(162262) not in TESTS, reason='Excluded')
+    def test_creating_multiple_choice_questions_162262(self):
         """
         Go to exercises qa
-        Log in as a teacher
-        Click "Write a new exercise"
-        Click "True/False" button
-
-        Expected result:
-
-        ***User is presented with a page where a True/False question can be created***
-
-        Corresponding test cases: T2.12 001, 002
-
-        https://trello.com/c/w4T1eqT4/66-creating-vocabulary-question-and-true-false
-        """
-
-        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162257' + \
-            inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162257']
-        self.ps.test_updates['passed'] = False
-
-        # log into exercises
-        self.teacher.login(url=os.getenv('EXERCISES_STAGING'),
-            username=os.getenv('CONTENT_USER'),
-            password=os.getenv('CONTENT_PASSWORD'))
-        # Click "Write a new exercise"
-        self.teacher.find(By.CSS_SELECTOR, "a[href*='new']").click()
-        # Click true false button
-        self.teacher.find(By.CSS_SELECTOR, "#input-true-false").click()
-        # Verify that user is presented with a page where they can make a true false q
-        self.teacher.find(By.CSS_SELECTOR, "textarea")
-        
-
-        self.ps.test_updates['passed'] = True
-        
-
-    @pytest.mark.skipif(str(162258) not in TESTS, reason='Excluded')
-    def test_question_library_functionality_162258(self):
-        """
-        Go to tutor qa
-        Log in as a teacher 
-        Click on a course
-        Upper right corner under user menu, click "Question Library"
-        Select a section or chapter
-        click "Show Questions"
-        ***User is presented with all the questions for the section or chapter***
-
-        Scroll down to a question, click "Exclude Question"
-        ***Observe that Question is excluded***
-
-        Click on the "Reading" tab
-        ***Exercises that are only for Reading appear***
-
-        Click on the "Practice" tab @@@@@@@@@@@ Should this be Homework?
-        ***Exercises that are only for Practice appear***
-
-        Scroll down
-        ***Observe that tabs are pinned to the top of the screen when scrolled***
-
-        Click on the section links at the top of the screen
-        ***Observe that the screen scrolls to the selected screen***
-        Hover over a question and click "Question details"
-        Click "Report an error"
-
-        Expected result:
-
-        ***Observe that a new tab with the assessment errata form appears with the assessment ID already filled in***
-
-        Corresponding test cases: T2.11 001-007
-
-        https://trello.com/c/SchGDgfL/70-question-library-functionality
-        """
-
-        self.ps.test_updates['name'] = 'exercises_question_library_teacher_162258' + \
-            inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['exercises', 'question_library', 'teacher', '162258']
-        self.ps.test_updates['passed'] = False
-        
-        self.teacher.login()
-        # select random tutor course
-        self.teacher.random_course()
-        # if Tutor feedback pops up
-        try:
-            self.teacher.find(By.XPATH, ".//*[contains(text(),'I won’t be using it')]").click()
-        except:
-            pass
-        # go to question library
-        self.teacher.open_user_menu()
-        self.teacher.wait.until(
-            expect.visibility_of_element_located((
-                By.CSS_SELECTOR,
-                "#menu-option-viewQuestionsLibrary"
-            ))
-        )
-        self.teacher.find(By.CSS_SELECTOR, "#menu-option-viewQuestionsLibrary").click()
-        # 50/50 coin toss. 0 = chapter, 1 = section(s)
-        coin = randint(0,1)
-        # reveal sections
-        chaptertitles = self.teacher.find_all(By.CSS_SELECTOR,
-            ".chapter-heading.panel-title>a")
-        for num in range(1,len(chaptertitles)-1):
-            self.teacher.scroll_to(chaptertitles[num])
-            self.teacher.sleep(.2)
-            chaptertitles[num].click()
-            self.teacher.sleep(.2)
-
-        # choose a random chapter and all its sections
-        if coin == 0:
-            chapters = self.teacher.find_all(By.CSS_SELECTOR, ".chapter-checkbox")
-            chapternum = randint(0,len(chapters)-1)
-            self.teacher.scroll_to(chapters[chapternum])
-            self.teacher.sleep(.5)
-            chapters[chapternum].click()
-            self.teacher.sleep(.5)
-
-        # choose randomly 1-5 sections from anywhere in the book
-        elif coin == 1:
-            sections = self.teacher.find_all(By.CSS_SELECTOR, ".section-checkbox")
-            randomlist = random.sample(range(len(sections)-1), k=randint(1,5))
-            for num in randomlist:
-                self.teacher.scroll_to(sections[num])
-                self.teacher.sleep(.5)
-                sections[num].click()
-                
-        # click show questions
-        self.teacher.find(By.CSS_SELECTOR,".btn.btn-primary").click()
-        self.teacher.sleep(5)
-        # verify questions show up
-        readingq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
-        excludebutton=self.teacher.find_all(By.CSS_SELECTOR,".action.exclude")[0]
-        # exclude a random question
-        self.teacher.scroll_to(excludebutton)
-        self.teacher.sleep(1)
-        actions = ActionChains(self.teacher.driver)
-        actions.move_to_element(excludebutton)
-        self.teacher.sleep(1)
-        actions.perform()
-        self.teacher.sleep(2)
-        excludebutton.click()
-        self.teacher.sleep(.5)
-        self.teacher.find(By.CSS_SELECTOR,".action.include").click()
-        
-        # click reading button
-        self.teacher.find(By.CSS_SELECTOR,".reading.btn.btn-default").click()
-        self.teacher.page.wait_for_page_load()
-        totalq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
-        # click homework button
-        self.teacher.find(By.CSS_SELECTOR,".homework.btn.btn-default").click()
-        homeworkq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
-        assert(len(totalq) > len(readingq))
-        assert(len(totalq) > len(homeworkq))
-        
-        # Observe that tabs are pinned to the top of the screen when scrolled
-        self.teacher.driver.execute_script("window.scrollTo(0, 0);")
-        self.teacher.sleep(3)
-        self.teacher.driver.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
-        self.teacher.sleep(3)
-        self.teacher.find(By.XPATH, "//div[@class='section active']")
-        self.teacher.find(
-            By.CSS_SELECTOR,".homework.btn.btn-default")
-        self.teacher.find(
-            By.CSS_SELECTOR,".reading.btn.btn-default")
-        
-        # jumps
-        jumps = self.teacher.find_all(By.XPATH,
-            "//div[@class='sectionizer']/div[@class='section']")
-        # Click the section links and verify the page is scrolled
-        position = self.teacher.driver.execute_script("return window.scrollY;")
-        for button in jumps:
-            button.click()
-            self.teacher.sleep(1)
-            assert(position != self.teacher.driver.execute_script(
-                "return window.scrollY;")), \
-                'Section link did not jump to next section'
-            position = self.teacher.driver.execute_script("return window.scrollY;")
-        # details will lead to Question details
-        details=self.teacher.find_all(By.CSS_SELECTOR,".action.details")[0]
-        self.teacher.scroll_to(details)
-        self.teacher.sleep(1)
-        actions = ActionChains(self.teacher.driver)
-        actions.move_to_element(details)
-        self.teacher.sleep(1)
-        actions.perform()
-        self.teacher.sleep(2)
-        details.click()
-        self.teacher.find(By.CSS_SELECTOR,".action.report-error").click()
-        details_window = self.teacher.driver.window_handles[1]
-        self.teacher.driver.switch_to_window(details_window)
-        self.teacher.page.wait_for_page_load()
-        self.teacher.sleep(2)
-        self.teacher.find(By.CSS_SELECTOR,".errata-page.page")
-
-        self.ps.test_updates['passed'] = True
-
-    @pytest.mark.skipif(str(162259) not in TESTS, reason='Excluded')
-    def test_creating_multiple_choice_questions_162259(self):
-        """
-        Go to exercises qa
-        Log in as a teacher
+        Log in as a content analyst
         Click "Write a new exercise"
         Enter the video embed link into the Question Stem text box
         ***The video should appear in the box to the right***
@@ -311,14 +114,14 @@ class TestExercisesTeacher(unittest.TestCase):
 
         ***The user is able to edit detailed solutions and the changes are in the box to the right***
 
-        Corresponding test cases: T2.11 022-031
+        Corresponding test cases: T2.11 010-021
 
-        https://trello.com/c/n5VmmdyB/83-creating-multiple-choice-questions
+        https://trello.com/c/6XGtFvPm/88-creating-multiple-choice-questions
         """
 
-        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162259' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_content_analyst_162262' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162259']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'content_analyst', '162262']
         self.ps.test_updates['passed'] = False
 
         self.teacher.login(url=os.getenv('EXERCISES_QA'),
@@ -419,11 +222,11 @@ class TestExercisesTeacher(unittest.TestCase):
         
         self.ps.test_updates['passed'] = True
 
-    @pytest.mark.skipif(str(162260) not in TESTS, reason='Excluded')
-    def test_creating_vocabulary_questions_162260(self):
+    @pytest.mark.skipif(str(162263) not in TESTS, reason='Excluded')
+    def test_creating_vocabulary_questions_162263(self):
         """
         Go to exercises qa
-        Log in with as a teacher
+        Log in as a content analyst
         Click "Write a new exercise"
         Click "New Vocabulary Term" from the header
         Fill out required fields
@@ -443,14 +246,14 @@ class TestExercisesTeacher(unittest.TestCase):
 
         ***The user is able to edit and save a vocabulary question***
 
-        Corresponding test cases: T2.11 035-037
+        Corresponding test cases: T2.11 032-034
 
-        https://trello.com/c/3j0K6fp0/89-creating-vocabulary-questions
+        https://trello.com/c/BAcghIsM/92-creating-vocabulary-questions
         """
 
-        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162260' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_content_analyst_162263' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162260']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'content_analyst', '162263']
         self.ps.test_updates['passed'] = False
 
         # logging in with these credentials 
@@ -539,11 +342,11 @@ class TestExercisesTeacher(unittest.TestCase):
 
         self.ps.test_updates['passed'] = True
 
-    @pytest.mark.skipif(str(162261) not in TESTS, reason='Excluded')
-    def test_creating_multipart_question_162261(self):
+    @pytest.mark.skipif(str(162264) not in TESTS, reason='Excluded')
+    def test_creating_multipart_question_162264(self):
         """
         Go to exercises qa
-        Log in as a teacher
+        Log in as a content analyst
         Click "Write a new exercise"
         Check the box that says "Exercise contains multiple parts" 
         Fill out the required fields
@@ -553,13 +356,13 @@ class TestExercisesTeacher(unittest.TestCase):
 
         ***The user gets a confirmation that says "Exercise [exercise ID] has published successfully"***
 
-        Corresponding test case: T2.11 045
+        Corresponding test case: T2.11 044, 046
 
-        https://trello.com/c/8LnE8Qml/162-creating-multi-part-question
+        https://trello.com/c/L1RjXiSx/160-creating-multi-part-questions-without-detailed-solutions
         """
-        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162261' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_content_analyst_162264' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162261']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'content_analyst', '162264']
         self.ps.test_updates['passed'] = False
 
         # logging in with these credentials 
@@ -602,11 +405,5 @@ class TestExercisesTeacher(unittest.TestCase):
         self.teacher.find(By.CSS_SELECTOR,'.modal-body>b')
 
         self.ps.test_updates['passed'] = True
-
-
-
-
-
-
 
 
