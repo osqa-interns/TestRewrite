@@ -1,7 +1,4 @@
-"""
-OpenStax Python helper for common actions.
-Couple of new functions such as open_help_menu and random_function
-"""
+"""OpenStax Python helper for common actions."""
 
 import calendar
 import datetime
@@ -531,7 +528,7 @@ class User(Helper):
             ).click()"""
         self.wait.until(
             expect.visibility_of_element_located(
-                (By.CSS_SELECTOR, '.user-actions-menu')
+                (By.CSS_SELECTOR, '#user-actions-menu')
             )
         ).click()
 
@@ -749,13 +746,14 @@ class Teacher(User):
     def goto_menu_item(self, item):
         """Go to a specific user menu item."""
         print('Enter: goto_menu_item')
-        if 'courses' in self.current_url():
+        if 'course' in self.current_url():
             print('Open user menu')
             self.open_user_menu()
             print('Select menu item %s' % item)
+            XPATHLINK= './/*[contains(text(),"%s")]' % (item)
             self.wait.until(
-                expect.element_to_be_clickable((By.LINK_TEXT, item))
-            ).click()
+                expect.element_to_be_clickable((By.XPATH, XPATHLINK))
+            ).click() 
             self.page.wait_for_page_load()
         print('Exit: goto_menu_item')
 
