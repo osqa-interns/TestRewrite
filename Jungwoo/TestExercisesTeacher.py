@@ -1,29 +1,19 @@
 """Exercises: Teacher"""
 
+import datetime
 import inspect
 import json
 import os
 import pytest
+import random
 import unittest
-import datetime
 
 from pastasauce import PastaSauce, PastaDecorator
-import random
-from random import randint
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as expect
 from selenium.webdriver.common.keys import Keys
-# from staxing.assignment import Assignment
-
-########################
-"""from staxing.helper import Teacher"""
-##########################
-from helper import Teacher
-
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.common.action_chains import ActionChains
-
+from staxing.helper import Teacher
 
 basic_test_env = json.dumps([
     {
@@ -37,10 +27,8 @@ BROWSERS = json.loads(os.getenv('BROWSERS', basic_test_env))
 LOCAL_RUN = os.getenv('LOCALRUN', 'false').lower() == 'true'
 TESTS = os.getenv(
     'CASELIST',
-    str([
-        #7978, 7979, 7980, 7981, 7982,
-        #7983, 7984, 7985, 7986, 7987,
-        #7988, 7989, 7990
+    str([ 
+        162257, 162258, 162259, 162260, 162261
     ])
 )
 
@@ -76,51 +64,48 @@ class TestExercisesTeacher(unittest.TestCase):
             self.teacher.delete()
         except:
             pass
-
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_creating_vcaobulary_question_and_true_and_false(self):
+            
+    @pytest.mark.skipif(str(162257) not in TESTS, reason='Excluded')
+    def test_creating_true_and_false_question_162257(self):
         """
-        Go to https://exercises-qa.openstax.org/
+        Go to exercises qa
         Log in as a teacher
         Click "Write a new exercise"
         Click "True/False" button
-        ***User is presented with a page where a True/False question can be created***
-
-        Click "New Vocabulary Term"
 
         Expected result:
 
-        ***The user is presented with a page where a new vocabulary question can be created***
+        ***User is presented with a page where a True/False question can be created***
 
         Corresponding test cases: T2.12 001, 002
+
+        https://trello.com/c/w4T1eqT4/66-creating-vocabulary-question-and-true-false
         """
 
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162257' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162257']
         self.ps.test_updates['passed'] = False
 
-        self.teacher.login(url='http://exercises-qa.openstax.org', username='teacher01', password='staxly16')
-        #Click "Write a new exercise"
+        # log into exercises
+        self.teacher.login(url=os.getenv('EXERCISES_STAGING'),
+            username=os.getenv('CONTENT_USER'),
+            password=os.getenv('CONTENT_PASSWORD'))
+        # Click "Write a new exercise"
         self.teacher.find(By.CSS_SELECTOR, "a[href*='new']").click()
-        #Click true false button
+        # Click true false button
         self.teacher.find(By.CSS_SELECTOR, "#input-true-false").click()
-        #Verify that user is presented with a page where they can make a true false q
+        # Verify that user is presented with a page where they can make a true false q
         self.teacher.find(By.CSS_SELECTOR, "textarea")
-        #click new vocabulary term
-        self.teacher.find(By.XPATH, ".//*[contains(text(), 'New Vocabulary Term')]").click()
-        #CLick OK
-        self.teacher.find(By.CSS_SELECTOR, ".btn.btn-primary").click()
-        #Verify that user is presented with a page where vocab question can be created
-        self.teacher.find(By.CSS_SELECTOR,"#key-term")
+        
 
         self.ps.test_updates['passed'] = True
+        
 
-
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_question_library_functionality(self):
+    @pytest.mark.skipif(str(162258) not in TESTS, reason='Excluded')
+    def test_question_library_functionality_162258(self):
         """
-        Go to https://tutor-qa.openstax.org/
+        Go to tutor qa
         Log in as a teacher 
         Click on a course
         Upper right corner under user menu, click "Question Library"
@@ -150,28 +135,24 @@ class TestExercisesTeacher(unittest.TestCase):
         ***Observe that a new tab with the assessment errata form appears with the assessment ID already filled in***
 
         Corresponding test cases: T2.11 001-007
+
+        https://trello.com/c/SchGDgfL/70-question-library-functionality
         """
 
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'exercises_question_library_teacher_162258' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['exercises', 'question_library', 'teacher', '162258']
         self.ps.test_updates['passed'] = False
         
         self.teacher.login()
-        #select random tutor course
-        courses = self.teacher.find_all(By.XPATH,
-            ".//*[@class='course-branding my-courses-item-brand' and contains(text(),'Tutor')]")
-        rand = randint(0,len(courses)-1)
-        self.teacher.sleep(2)
-        self.teacher.scroll_to(courses[rand])
-        self.teacher.driver.execute_script('window.scrollBy(0,-50);')
-        courses[rand].click()
-        #if Tutor feedback pops up
+        # select random tutor course
+        self.teacher.random_course()
+        # if Tutor feedback pops up
         try:
             self.teacher.find(By.XPATH, ".//*[contains(text(),'I won’t be using it')]").click()
         except:
             pass
-        #go to question library
+        # go to question library
         self.teacher.open_user_menu()
         self.teacher.wait.until(
             expect.visibility_of_element_located((
@@ -180,9 +161,9 @@ class TestExercisesTeacher(unittest.TestCase):
             ))
         )
         self.teacher.find(By.CSS_SELECTOR, "#menu-option-viewQuestionsLibrary").click()
-        #0 = chapter, 1 = section(s)
+        # 50/50 coin toss. 0 = chapter, 1 = section(s)
         coin = randint(0,1)
-        #reveal sections
+        # reveal sections
         chaptertitles = self.teacher.find_all(By.CSS_SELECTOR,
             ".chapter-heading.panel-title>a")
         for num in range(1,len(chaptertitles)-1):
@@ -190,7 +171,8 @@ class TestExercisesTeacher(unittest.TestCase):
             self.teacher.sleep(.2)
             chaptertitles[num].click()
             self.teacher.sleep(.2)
-        #choose a random chapter and all its sections
+
+        # choose a random chapter and all its sections
         if coin == 0:
             chapters = self.teacher.find_all(By.CSS_SELECTOR, ".chapter-checkbox")
             chapternum = randint(0,len(chapters)-1)
@@ -198,7 +180,8 @@ class TestExercisesTeacher(unittest.TestCase):
             self.teacher.sleep(.5)
             chapters[chapternum].click()
             self.teacher.sleep(.5)
-        #choose randomly 1-5 sections from anywhere in the book
+
+        # choose randomly 1-5 sections from anywhere in the book
         elif coin == 1:
             sections = self.teacher.find_all(By.CSS_SELECTOR, ".section-checkbox")
             randomlist = random.sample(range(len(sections)-1), k=randint(1,5))
@@ -207,48 +190,35 @@ class TestExercisesTeacher(unittest.TestCase):
                 self.teacher.sleep(.5)
                 sections[num].click()
                 
-        #click show questions
+        # click show questions
         self.teacher.find(By.CSS_SELECTOR,".btn.btn-primary").click()
-        #self.teacher.scroll_to(showquestion)
         self.teacher.sleep(5)
-        #verify questions show up
+        # verify questions show up
         readingq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
-        zzz=self.teacher.find_all(By.CSS_SELECTOR,".action.exclude")[0]
-        #exclude a random question
-        #exclude = self.teacher.find_all(By.CSS_SELECTOR,".action.exclude")
-        """randexclude = randint(0,len(exclude)-1)
-        self.teacher.scroll_to(exclude[randexclude])
-        actions = ActionChains(self.teacher.driver)
-        actions.move_to_element(exclude[randexclude])
-        actions.perform()
-        self.teacher.sleep(2)
-        exclude[randexclude].click()"""
-        self.teacher.scroll_to(zzz)
+        excludebutton=self.teacher.find_all(By.CSS_SELECTOR,".action.exclude")[0]
+        # exclude a random question
+        self.teacher.scroll_to(excludebutton)
         self.teacher.sleep(1)
         actions = ActionChains(self.teacher.driver)
-        actions.move_to_element(zzz)
+        actions.move_to_element(excludebutton)
         self.teacher.sleep(1)
         actions.perform()
         self.teacher.sleep(2)
-        zzz.click()
+        excludebutton.click()
         self.teacher.sleep(.5)
-        """self.teacher.wait.until(
-            expect.visibility_of_element_located((
-                By.CSS_SELECTOR,
-                ".action.include"
-            ))
-        )"""
         self.teacher.find(By.CSS_SELECTOR,".action.include").click()
-        #click reading button
+        
+        # click reading button
         self.teacher.find(By.CSS_SELECTOR,".reading.btn.btn-default").click()
         self.teacher.page.wait_for_page_load()
         totalq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
-        #click homework button
+        # click homework button
         self.teacher.find(By.CSS_SELECTOR,".homework.btn.btn-default").click()
         homeworkq = self.teacher.find_all(By.CSS_SELECTOR,".controls-overlay")
         assert(len(totalq) > len(readingq))
         assert(len(totalq) > len(homeworkq))
-        #Observe that tabs are pinned to the top of the screen when scrolled
+        
+        # Observe that tabs are pinned to the top of the screen when scrolled
         self.teacher.driver.execute_script("window.scrollTo(0, 0);")
         self.teacher.sleep(3)
         self.teacher.driver.execute_script(
@@ -260,10 +230,9 @@ class TestExercisesTeacher(unittest.TestCase):
         self.teacher.find(
             By.CSS_SELECTOR,".reading.btn.btn-default")
         
-        #jumps
+        # jumps
         jumps = self.teacher.find_all(By.XPATH,
             "//div[@class='sectionizer']/div[@class='section']")
-        #self.teacher.scroll_to(jumps[0])
         # Click the section links and verify the page is scrolled
         position = self.teacher.driver.execute_script("return window.scrollY;")
         for button in jumps:
@@ -273,6 +242,7 @@ class TestExercisesTeacher(unittest.TestCase):
                 "return window.scrollY;")), \
                 'Section link did not jump to next section'
             position = self.teacher.driver.execute_script("return window.scrollY;")
+        # details will lead to Question details
         details=self.teacher.find_all(By.CSS_SELECTOR,".action.details")[0]
         self.teacher.scroll_to(details)
         self.teacher.sleep(1)
@@ -291,11 +261,10 @@ class TestExercisesTeacher(unittest.TestCase):
 
         self.ps.test_updates['passed'] = True
 
-####NOT FINISHED###################################################
-    @pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_creating_multiple_choice_questions(self):
+    @pytest.mark.skipif(str(162259) not in TESTS, reason='Excluded')
+    def test_creating_multiple_choice_questions_162259(self):
         """
-        Go to https://exercises-qa.openstax.org
+        Go to exercises qa
         Log in as a teacher
         Click "Write a new exercise"
         Enter the video embed link into the Question Stem text box
@@ -343,29 +312,36 @@ class TestExercisesTeacher(unittest.TestCase):
         ***The user is able to edit detailed solutions and the changes are in the box to the right***
 
         Corresponding test cases: T2.11 022-031
+
+        https://trello.com/c/n5VmmdyB/83-creating-multiple-choice-questions
         """
 
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162259' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162259']
         self.ps.test_updates['passed'] = False
 
-        #logging in with these credentials because user "auto021" doesn't have access 
-        self.teacher.login(url='http://exercises-qa.openstax.org', username='teacher01', password='staxly16')
+        self.teacher.login(url=os.getenv('EXERCISES_QA'),
+            username=os.getenv('CONTENT_USER'),
+            password=os.getenv('CONTENT_PASSWORD')
+        )
         #click create a new question
         self.teacher.find(By.CSS_SELECTOR, "a[href*='new']").click()
         textboxes = self.teacher.find_all(By.CSS_SELECTOR,".question>div>textarea")
         #put embed link into Question Stem text box
-        textboxes[0].send_keys('<iframe width="560" height="315" src="https://www.youtube.com/embed/QnQe0xW_JY4" frameborder="0" allowfullscreen></iframe>"')
+        embedlink='<iframe width="560" height="315" src="https://www.youtube.com/embed/'
+        embedlink+='QnQe0xW_JY4" frameborder="0" allowfullscreen></iframe>"'
+        textboxes[0].send_keys(embedlink)
         #verify that the video appears in the box to the right
         self.teacher.find(By.CSS_SELECTOR, "iframe")
         #fill out the required fields
         answers = self.teacher.find_all(By.CSS_SELECTOR,".correct-answer>textarea")
         answers[0].send_keys('answer numero uno')
         answers[1].send_keys('answer numero dos')
-        textboxes[1].send_keys('answer numero tres')
+        #textboxes[1].send_keys('answer numero tres')
         #click on Order Matters checkbox
         self.teacher.find(By.CSS_SELECTOR,"#input-om").click()
+
         #Click on Tabs tag
         self.teacher.find(By.CSS_SELECTOR,"#exercise-parts-tab-tags").click()
         #verify that all the dropdowns are clickable
@@ -376,26 +352,77 @@ class TestExercisesTeacher(unittest.TestCase):
         tagoptions[1].click()
         self.teacher.find_all(By.CSS_SELECTOR,"option")[1].click()
         #verify that the tag appears in the box to the right
-        self.teacher.find(By.XPATH, "//*[@class='exercise-tag' and contains(text(),'type')]")
+        self.teacher.find(
+            By.XPATH, 
+            "//*[@class='exercise-tag' and contains(text(),'type')]"
+        )
         self.teacher.find(By.CSS_SELECTOR,".tag>input").click()
-        self.teacher.find(By.XPATH,"//*[@class='exercise-tag' and contains(text(),'context:true')]")
+        self.teacher.find(
+            By.XPATH,
+            "//*[@class='exercise-tag' and contains(text(),'context:true')]"
+        )
         #click "+" next to CNX Module
         self.teacher.find_all(By.CSS_SELECTOR,".fa.fa-plus-circle")[2].click()
         #put in a CNX module
-        self.teacher.find(By.XPATH, ".//*[@class='form-control' and @placeholder]").send_keys(
-            '12345678-1234-5788-9123-456798123456')
+        self.teacher.find(
+            By.XPATH, 
+            ".//*[@class='form-control' and @placeholder]"
+            ).send_keys('12345678-1234-5788-9123-456798123456')
+
         #click save draft
         self.teacher.find(By.CSS_SELECTOR,".async-button.draft.btn.btn-info").click()
         #click assets tab
         self.teacher.find(By.CSS_SELECTOR,"#exercise-parts-tab-assets").click()
-        self.teacher.find(By.CSS_SELECTOR,".selector").click()
+        # Choose image. This is all local -- prob have to edit for diff computer
+        IMAGEPATH = "/Users/openstax10/desktop/bee_clip_art_18782.jpg"
+        self.teacher.find(By.ID,"file").send_keys(IMAGEPATH)
+        # check that Choose different image and Upload buttons are present
+        self.teacher.find(By.XPATH,'.//*[contains(text(),"Choose different image")]')
+        self.teacher.find(By.XPATH,'.//*[contains(text(),"Upload")]').click()
+        self.teacher.page.wait_for_page_load()
+        # check if uploaded url is present
+        self.teacher.find(By.CSS_SELECTOR,".copypaste")
+        # check that delete button is present and click it
+        self.teacher.find(By.XPATH,'.//*[contains(text(),"Delete")]').click()
+        self.teacher.sleep(1)
 
-        self.teacher.sleep(5)
+        # click publish
+        self.teacher.find(By.CSS_SELECTOR,'.async-button.publish.btn.btn-primary').click()
+        self.teacher.sleep(1)
+        # confirm that you want to publish
+        self.teacher.find(
+            By.XPATH,
+            './/*[@class="btn btn-primary" and contains(text(),"Publish")]'
+            ).click()
+        self.teacher.sleep(1)
+        # close popup window tellign you ID #
+        self.teacher.find(
+            By.XPATH,
+            './/*[@class="btn btn-primary" and contains(text(),"Close")]'
+            ).click()
+        # get id
+        ID = self.teacher.current_url().split('/')[-1]
 
-    #@pytest.mark.skipif(str(58279) not in TESTS, reason='Excluded')
-    def test_creating_vocabulary_questions(self):
+        # click search button
+        self.teacher.find(By.CSS_SELECTOR,'.btn.btn-danger.back.btn.btn-default').click()
+        # enter ID into field
+        self.teacher.find(By.CSS_SELECTOR,'.form-control').send_keys(ID)
+        self.teacher.find(By.CSS_SELECTOR,'.btn.btn-default.load').click()
+        # edit detailed solution
+        self.teacher.find(By.XPATH, "//div[4]/textarea").send_keys('hello edited')
+        detailedsol = self.teacher.find(By.CSS_SELECTOR,
+            '.openstax-has-html.solution'
+            ).get_attribute('innerHTML')
+        # check that the text you inputted into detailed solution is in the 
+        # box to the right
+        assert('hello edited' == detailedsol)
+        
+        self.ps.test_updates['passed'] = True
+
+    @pytest.mark.skipif(str(162260) not in TESTS, reason='Excluded')
+    def test_creating_vocabulary_questions_162260(self):
         """
-        Go to https://exercises-qa.openstax.org/
+        Go to exercises qa
         Log in with as a teacher
         Click "Write a new exercise"
         Click "New Vocabulary Term" from the header
@@ -417,56 +444,164 @@ class TestExercisesTeacher(unittest.TestCase):
         ***The user is able to edit and save a vocabulary question***
 
         Corresponding test cases: T2.11 035-037
+
+        https://trello.com/c/3j0K6fp0/89-creating-vocabulary-questions
         """
 
-        self.ps.test_updates['name'] = 't1.13.001' + \
+        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162260' + \
             inspect.currentframe().f_code.co_name[4:]
-        self.ps.test_updates['tags'] = ['t1', 't1.13', 't1.13.001', '7978']
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162260']
         self.ps.test_updates['passed'] = False
 
-        #logging in with these credentials because user "auto021" doesn't have access 
-        self.teacher.login(url='http://exercises-qa.openstax.org', username='teacher01', password='staxly16')
-        #click create a new question
+        # logging in with these credentials 
+        self.teacher.login(url=os.getenv('EXERCISES_QA'),
+            username=os.getenv('CONTENT_USER'),
+            password=os.getenv('CONTENT_PASSWORD')
+        )
+        # click create a new question
         self.teacher.find(By.CSS_SELECTOR, "a[href*='new']").click()
-        #click New vocabulary question
+        # click New vocabulary question
         self.teacher.find(By.CSS_SELECTOR,".btn.btn-success.vocabulary.blank").click()
+        # enter testing as the key term
         self.teacher.find(By.CSS_SELECTOR,"#key-term").send_keys('testing')
+        # enter 'ignore' as the definition
         self.teacher.find(By.CSS_SELECTOR,"#key-term-def").send_keys('ignore')
-        #click save draft
+        # click save draft
         self.teacher.find(By.CSS_SELECTOR,".async-button.draft.btn.btn-info").click()
-        #click publish
+        # click publish
         self.teacher.find(By.CSS_SELECTOR,".async-button.publish.btn.btn-primary").click()
         self.teacher.sleep(1)
-        self.teacher.find(By.XPATH,".//*[@class='btn btn-primary' and contains(text(),'Publish')]").click()
+        # confirm publish
+        self.teacher.find(
+            By.XPATH,
+            ".//*[@class='btn btn-primary' and contains(text(),'Publish')]"
+        ).click()
         self.teacher.sleep(3)
-        exerciseid = self.teacher.find_all(By.CSS_SELECTOR,".exercise-tag")[3].get_attribute('innerHTML')[4:]
+        # get the exercise id
+        exerciseid = self.teacher.find_all(
+            By.CSS_SELECTOR,
+            ".exercise-tag")[3].get_attribute('innerHTML')[4:]
+
+        # go to search
         self.teacher.find(By.XPATH, ".//*[contains(text(),'Search')]").click()
+        # search the exercise id
         self.teacher.find(By.CSS_SELECTOR,".form-control").send_keys(exerciseid)
+        # click search
         self.teacher.find(By.CSS_SELECTOR,".btn.btn-default.load").click()
+        # confirm key term value is what was inputted originally
+        keyterm = self.teacher.find(By.CSS_SELECTOR,"#key-term").get_attribute('value')
+        assert(keyterm == 'testing')
+        # write something else for key term
         keyterm = self.teacher.find(By.CSS_SELECTOR,"#key-term")
-        keyterm.send_keys(Keys.BACKSPACE*len('testing '))
+        keyterm.send_keys(Keys.BACKSPACE*len('testing   '))
         self.teacher.sleep(.2)
         keyterm.send_keys('test edit')
+        # confirm key term def value is what was inputted oirignally
+        keytermdef = self.teacher.find(By.CSS_SELECTOR,'#key-term-def').get_attribute('value')
+        assert(keytermdef == 'ignore')
+        # write something else for key term def
         keytermdef = self.teacher.find(By.CSS_SELECTOR,"#key-term-def")
-        keytermdef.send_keys(Keys.BACKSPACE*len('ignore '))
+        keytermdef.send_keys(Keys.BACKSPACE*len('ignore   '))
         self.teacher.sleep(.2)
         keytermdef.send_keys('ignore edit')
-        self.teacher.find_all(By.CSS_SELECTOR,".form-control")[2].send_keys('im a distractor')
+        # fill in value for distractor
+        self.teacher.find_all(
+            By.CSS_SELECTOR,
+            ".form-control")[2].send_keys('im a distractor')
         self.teacher.sleep(3)
-        self.teacher.find(By.CSS_SELECTOR,".async-button.draft.btn.btn-info").click()
+
+        # save as draft
+        self.teacher.find(
+            By.CSS_SELECTOR,
+            ".async-button.draft.btn.btn-info").click()
         self.teacher.sleep(1)
-        self.teacher.find(By.CSS_SELECTOR,".async-button.publish.btn.btn-primary").click()
-        self.teacher.find(By.XPATH,".//*[@class='btn btn-primary' and contains(text(),'Publish')]").click()
-        self.teacher.sleep(3)
-        exerciseid = self.teacher.find_all(By.CSS_SELECTOR,".exercise-tag")[3].get_attribute('innerHTML')[4:]
+        # publish
+        self.teacher.find(
+            By.CSS_SELECTOR,
+            ".async-button.publish.btn.btn-primary").click()
+        # confirm publish
+        self.teacher.find(
+            By.XPATH,
+            './/*[@class="btn btn-primary" and contains(text(),"Publish")]').click()
+        self.teacher.sleep(2)
+        # get new exercise id 
+        exerciseid = self.teacher.find_all(
+            By.CSS_SELECTOR,
+            ".exercise-tag")[3].get_attribute('innerHTML')[4:]
+        # click search
         self.teacher.find(By.XPATH, ".//*[contains(text(),'Search')]").click()
+        # search the exercise id
         self.teacher.find(By.CSS_SELECTOR,".form-control").send_keys(exerciseid)
         self.teacher.find(By.CSS_SELECTOR,".btn.btn-default.load").click()
+        # verify that the value in key term is what was inputted previously
         keyterm = self.teacher.find(By.CSS_SELECTOR,"#key-term").get_attribute('value')
         assert(keyterm == 'test edit')
 
         self.ps.test_updates['passed'] = True
 
+    @pytest.mark.skipif(str(162261) not in TESTS, reason='Excluded')
+    def test_creating_multipart_question_162261(self):
+        """
+        Go to exercises qa
+        Log in as a teacher
+        Click "Write a new exercise"
+        Check the box that says "Exercise contains multiple parts" 
+        Fill out the required fields
+        Click "Publish"
+
+        Expected result:
+
+        ***The user gets a confirmation that says "Exercise [exercise ID] has published successfully"***
+
+        Corresponding test case: T2.11 045
+
+        https://trello.com/c/8LnE8Qml/162-creating-multi-part-question
+        """
+        self.ps.test_updates['name'] = 'exercises_new_exercise_teacher_162261' + \
+            inspect.currentframe().f_code.co_name[4:]
+        self.ps.test_updates['tags'] = ['exercises', 'new_exercise', 'teacher', '162261']
+        self.ps.test_updates['passed'] = False
+
+        # logging in with these credentials 
+        self.teacher.login(url=os.getenv('EXERCISES_QA'),
+            username=os.getenv('CONTENT_USER'),
+            password=os.getenv('CONTENT_PASSWORD')
+        )
+        # click create a new question
+        self.teacher.find(By.CSS_SELECTOR, "a[href*='new']").click()
+        # click "Exercise contains multiple parts"
+        self.teacher.find(By.CSS_SELECTOR,'#mpq-toggle').click()
+        # write in something for question stem
+        self.teacher.find(By.CSS_SELECTOR,'.question>div>textarea').send_keys('test')
+        # write in something for Distractor
+        self.teacher.find(By.CSS_SELECTOR,'.correct-answer>textarea').send_keys('ignore')
+        # click tab "question 2"
+        self.teacher.find(By.CSS_SELECTOR,'#exercise-parts-tab-question-1').click()
+        self.teacher.sleep(1)
+        # write in something for question stem
+        self.teacher.find_all(
+            By.CSS_SELECTOR,
+            '.question>div>textarea')[2].send_keys('test2')
+        # write in something for Distractor
+        self.teacher.find_all(
+            By.CSS_SELECTOR,
+            '.correct-answer>textarea')[2].send_keys('ignore2')
+        # click save draft
+        self.teacher.find(By.CSS_SELECTOR,'.async-button.draft.btn.btn-info').click()
+        # click publish
+        self.teacher.find(
+            By.CSS_SELECTOR,
+            '.async-button.publish.btn.btn-primary').click()
+        self.teacher.sleep(1)
+        # confirm publish
+        self.teacher.find(
+            By.XPATH,
+            ".//*[@class='btn btn-primary' and contains(text(),'Publish')]"
+        ).click()
+        # confirm message appears
+        self.teacher.find(By.CSS_SELECTOR,'.modal-body>b')
+
+        self.ps.test_updates['passed'] = True
 
 
 
